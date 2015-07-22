@@ -17,9 +17,11 @@ class Message
         $this->client = $client;
     }
 
-    public function reply($pipe, $text, $headers = [])
+    public function reply($text, $headers = [])
     {
-        $this->client->send($pipe, $text, $headers);
+        if ($pipe = $this->getHeader('replyTo')) {
+            $this->client->send($pipe, $text, $headers);
+        }
     }
 
     public function setAckResolver(AckResolver $ackResolver)
@@ -29,7 +31,7 @@ class Message
 
     public function ack(array $headers = [])
     {
-        if(!($this->ackResolver instanceof AckResolver)) {
+        if (!($this->ackResolver instanceof AckResolver)) {
             throw new \RuntimeException('You cannot use acknowledgement without ack subscription');
         }
         $this->ackResolver->ack($headers);
@@ -37,7 +39,7 @@ class Message
 
     public function nack(array $headers = [])
     {
-        if(!($this->ackResolver instanceof AckResolver)) {
+        if (!($this->ackResolver instanceof AckResolver)) {
             throw new \RuntimeException('You cannot use acknowledgement without ack subscription');
         }
         $this->ackResolver->nack($headers);
