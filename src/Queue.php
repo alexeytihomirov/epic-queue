@@ -1,18 +1,20 @@
 <?php namespace Epic;
 
-use \React\Stomp;
+use \React\Stomp\Client;
+use \React\Stomp\Factory;
+use \React\EventLoop\LoopInterface;
 use \Epic\Queue\Message;
 
 class Queue
 {
     /**
-     * @var Stomp\Client $client
+     * @var Client $client
      */
     protected $client;
     protected $subscriptions = [];
     public static $factory;
 
-    public function __construct(Stomp\Client $client)
+    public function __construct(Client $client)
     {
         $this->client = $client;
 
@@ -24,29 +26,35 @@ class Queue
 
     protected function applySubscriptions()
     {
+
+
         foreach ($this->subscriptions as $subscription) {
-            $this->client->subscribe($subscription['pipe'], function ($frame) use ($subscription) {
+
+            $subscribeAction = function ($frame, $ackResolver) use ($subscription) {
                 $message = new Message($frame, $this->client);
+                if ($ackResolver) {
+                    $message->setAckResolver($ackResolver);
+                }
                 $subscription['action']($message, $this);
-            });
+            };
+
+            if ($subscription['ack']) {
+                $this->client->subscribeWithAck($subscription['pipe'], $subscription['ack_mode'], $subscribeAction);
+            } else {
+                $this->client->subscribe($subscription['pipe'], $subscribeAction);
+            }
         }
     }
 
     public function subscribe($pipe, $action)
     {
-        $this->subscriptions[] = ['pipe' => $pipe, 'action' => $action];
+        $this->subscriptions[] = ['pipe' => $pipe, 'action' => $action, 'ack' => false];
         return $this;
     }
 
-    public function subscribeQueue($destination, $action)
+    public function subscribeAck($pipe, $action, $ackMode = 'client')
     {
-        $this->subscribe('/queue/' . $destination, $action);
-        return $this;
-    }
-
-    public function subscribeTopic($destination, $action)
-    {
-        $this->subscribe('/topic/' . $destination, $action);
+        $this->subscriptions[] = ['pipe' => $pipe, 'action' => $action, 'ack' => true, 'ack_mode' => $ackMode];
         return $this;
     }
 
@@ -55,10 +63,10 @@ class Queue
         return $this->client;
     }
 
-    public static function create(\React\EventLoop\LoopInterface $loop, $params)
+    public static function create(LoopInterface $loop, $params)
     {
-        if (null === static::$factory OR !(static::$factory instanceof Stomp\Factory)) {
-            static::$factory = new Stomp\Factory($loop);
+        if (null === static::$factory OR !(static::$factory instanceof Factory)) {
+            static::$factory = new Factory($loop);
         }
         return new static(static::$factory->createClient($params));
     }
