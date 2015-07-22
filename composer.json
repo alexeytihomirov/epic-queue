@@ -1,0 +1,25 @@
+{
+  "name": "epic/queue",
+  "description": "Queues over reactphp/stomp",
+  "keywords": [
+    "queue",
+    "reactphp",
+    "stomp",
+    "microservice"
+  ],
+  "homepage": "http://github.com/alexeytihomirov/epic-queue/",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexey Tihomirov",
+      "email": "tihomirov.php@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"Epic\\": "src"}
+  },
+  "require": {
+    "react/stomp": "0.2.0"
+  }
+}
