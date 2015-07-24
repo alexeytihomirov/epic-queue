@@ -59,4 +59,9 @@ class Message
     {
         return $this->frame->getHeader($name);
     }
+
+    public function getHeaders()
+    {
+        return $this->frame->headers;
+    }
 }

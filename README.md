@@ -1,5 +1,4 @@
-# epic-queue
-Queues over reactphp/stomp
+Epic\Queue - Обёртка над Reactphp\Stomp для упрощения работы с очередями.
 
 ```php
 <?php
