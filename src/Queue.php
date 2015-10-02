@@ -66,19 +66,23 @@ class Queue
     }
 
     public function subscribeQueue($pipe, $action) {
-
+        $this->subscribe('/queue/' . $pipe, $action);
+        return $this;
     }
 
     public function subscribeQueueAck($pipe, $action, $ackMode = self::ACK_MODE_CLIENT) {
-
+        $this->subscribeAck('/queue/' . $pipe, $action, $ackMode);
+        return $this;
     }
 
     public function subscribeTopic($pipe, $action) {
-
+        $this->subscribe('/topic/' . $pipe, $action);
+        return $this;
     }
 
     public function subscribeTopicAck($pipe, $action, $ackMode = self::ACK_MODE_CLIENT) {
-
+        $this->subscribeAck('/topic/' . $pipe, $action, $ackMode);
+        return $this;
     }
 
     public function send($pipe, $message, array $headers = [])
