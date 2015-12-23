@@ -20,6 +20,6 @@
     "psr-4": {"Epic\\": "src"}
   },
   "require": {
-    "react/stomp": "0.2.0"
+    "react/stomp": "dev-master"
   }
 }
